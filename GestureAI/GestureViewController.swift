@@ -10,7 +10,7 @@ import UIKit
 import CoreML
 import CoreMotion
 
-class GestureViewController: UIViewController {
+class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource{
     
     // MARK:- Properties
     
@@ -32,14 +32,18 @@ class GestureViewController: UIViewController {
     // MARK:- Outlets
     
     @IBOutlet weak var gaBtn: UIButton!
+    @IBOutlet weak var recBtn: UIButton!
+    @IBOutlet weak var recPicker: UIPickerView!
     @IBOutlet weak var gaArea: UILabel!
     
+    var pickerData: [String] = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
     
     // MARK:- UIViewControllers
     
     override func viewDidLoad() {
-        super.viewDidLoad()
-        
+        super.viewDidLoad();
+        self.recPicker.delegate = self;
+        self.recPicker.dataSource = self;
         motionManager.accelerometerUpdateInterval = 0.1
         let statusBar = UIView(frame:CGRect(x: 0.0, y: 0.0, width: UIScreen.main.bounds.size.width, height: 20.0))
         statusBar.backgroundColor = GAColor.btnSensing
@@ -56,6 +60,18 @@ class GestureViewController: UIViewController {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
     }
     
     // MARK:- Events
@@ -112,17 +128,94 @@ class GestureViewController: UIViewController {
         }
         
         gestureAI = GestureAI()
-        guard let symbol = GASymbol.map[index_max] else {
+        guard let symbol = GASymbol.alphaMap[index_max] else {
             return
         }
         gaArea.text = symbol
     }
+    
+    @IBAction func recBtnTouchDown(_ sender: Any) {
+        recBtn.backgroundColor = GAColor.btnSensing
+        self.sequenceTarget = []
+        
+        timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateRecTimer(tm:)), userInfo: nil, repeats: true)
+        timer.fire()
+        
+        motionManager.startAccelerometerUpdates(to: queue, withHandler: {
+            (accelerometerData, error) in
+            if let e = error {
+                fatalError(e.localizedDescription)
+            }
+            guard let data = accelerometerData else { return }
+            self.sequenceTarget.append(data.acceleration.x)
+            self.sequenceTarget.append(data.acceleration.y)
+            self.sequenceTarget.append(data.acceleration.z)
+        })
+    }
+    
+    
+    @IBAction func recBtnTouchUpInside(_ sender: Any) {
+        recBtn.backgroundColor = GAColor.btnNormal
+        motionManager.stopAccelerometerUpdates()
+
+        timer.invalidate()
+        cntTimer = 0
+        
+        let cnt = self.sequenceTarget.count
+        if cnt >= lengthMax*inputDim {
+            cntTimer = 0
+            return
+        }
+        
+        // Pay attention to input dimension for RNN
+        for _ in cnt..<lengthMax*inputDim {
+            self.sequenceTarget.append(0.0);
+        }
+        let i = 0;
+        print(self.sequenceTarget);
+        for i in i..<self.sequenceTarget.count/3 {
+            print(i)
+            let str = String(format:"%d, %d, %d\n",self.sequenceTarget[i*3],self.sequenceTarget[i*3+1],self.sequenceTarget[i*3+2])
+            print(str)
+        }
+        let output = predict(self.sequenceTarget)
+        // Find a maximum likelihood
+        var max = Double(truncating: output.output1[0])
+        var index_max: Int = 0
+        let end = output.output1.count
+        for i in 1..<end {
+            let t = Double(truncating: output.output1[i])
+            if t >= max {
+                max = t
+                index_max = i
+            }
+        }
+        
+        gestureAI = GestureAI()
+        guard let symbol = GASymbol.alphaMap[index_max] else {
+            return
+        }
+        gaArea.text = symbol
+    }
+    
+    
+    
     
     // MARK:- Utils
     
     @objc private func updateTimer(tm: Timer) {
         if cntTimer >= timeMax {
             gaBtn.backgroundColor = GAColor.btnWarning
+            timer.invalidate()
+            cntTimer = 0
+            return
+        }
+        cntTimer += 1
+    }
+    
+    @objc private func updateRecTimer(tm: Timer) {
+        if cntTimer >= timeMax {
+            recBtn.backgroundColor = GAColor.btnWarning
             timer.invalidate()
             cntTimer = 0
             return
