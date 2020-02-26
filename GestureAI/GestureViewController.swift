@@ -14,7 +14,7 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     
     // MARK:- Properties
     
-    private var gestureAI = GestureAI()
+    private var gestureAI = GestureAlphabetProcessor()
     private let queue = OperationQueue.init()
     private let motionManager = CMMotionManager()
     private lazy var timer: Timer = {
@@ -27,7 +27,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     private var cntTimer: Int = 0
     private let inputDim: Int = 3
     private let lengthMax: Int = 40
-    private var sequenceTarget: [Double] = []
+    private var sequenceTargetX: [Double] = []
+    private var sequenceTargetY: [Double] = []
+    private var sequenceTargetZ: [Double] = []
     
     // MARK:- Outlets
     
@@ -78,7 +80,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     
     @IBAction func gaBtnTouchDown(_ sender: Any) {
         gaBtn.backgroundColor = GAColor.btnSensing
-        self.sequenceTarget = []
+        self.sequenceTargetX = []
+        self.sequenceTargetY = []
+        self.sequenceTargetZ = []
         
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.updateTimer(tm:)), userInfo: nil, repeats: true)
         timer.fire()
@@ -89,9 +93,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
                 fatalError(e.localizedDescription)
             }
             guard let data = accelerometerData else { return }
-            self.sequenceTarget.append(data.acceleration.x)
-            self.sequenceTarget.append(data.acceleration.y)
-            self.sequenceTarget.append(data.acceleration.z)
+            self.sequenceTargetX.append(data.acceleration.x)
+            self.sequenceTargetY.append(data.acceleration.y)
+            self.sequenceTargetZ.append(data.acceleration.z)
         })
     }
     
@@ -103,7 +107,7 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
         timer.invalidate()
         cntTimer = 0
         
-        let cnt = self.sequenceTarget.count
+        let cnt = self.sequenceTargetX.count
         if cnt >= lengthMax*inputDim {
             cntTimer = 0
             return
@@ -111,11 +115,14 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
         
         // Pay attention to input dimension for RNN
         for _ in cnt..<lengthMax*inputDim {
-            self.sequenceTarget.append(0.0)
+            self.sequenceTargetX.append(0.0)
+            self.sequenceTargetY.append(0.0)
+            self.sequenceTargetZ.append(0.0)
         }
 
-        let output = predict(self.sequenceTarget)
+        let output = predict(self.sequenceTargetX,self.sequenceTargetY,self.sequenceTargetZ)
         // Find a maximum likelihood
+        /*
         var max = Double(truncating: output.output1[0])
         var index_max: Int = 0
         let end = output.output1.count
@@ -126,14 +133,17 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
                 index_max = i
             }
         }
-        
-        gestureAI = GestureAI()
+        */
+        /*
+        gestureAI = GestureAlphabetProcessor()
         guard let symbol = GASymbol.alphaMap[index_max] else {
             return
         }
-        gaArea.text = symbol
+        */
+        //gaArea.text = symbol
+        gaArea.text = output.label
     }
-    
+    /*
     @IBAction func recBtnTouchDown(_ sender: Any) {
         recBtn.backgroundColor = GAColor.btnSensing
         self.sequenceTarget = []
@@ -191,13 +201,13 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
             }
         }
         
-        gestureAI = GestureAI()
+        gestureAI = GestureAlphabetProcessor()
         guard let symbol = GASymbol.alphaMap[index_max] else {
             return
         }
         gaArea.text = symbol
     }
-    
+    */
     
     
     
@@ -212,7 +222,7 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
         }
         cntTimer += 1
     }
-    
+    /*
     @objc private func updateRecTimer(tm: Timer) {
         if cntTimer >= timeMax {
             recBtn.backgroundColor = GAColor.btnWarning
@@ -222,7 +232,7 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
         }
         cntTimer += 1
     }
-    
+    */
     /// Convert double array type into MLMultiArray
     ///
     /// - Parameters:
@@ -244,9 +254,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     /// - Parameters:
     /// - arr: Sequence
     /// - Returns: Likelihood
-    private func predict(_ arr: [Double]) -> GestureAIOutput {
+    private func predict(_ arrX: [Double], _ arrY: [Double], _ arrZ: [Double]) -> GestureAlphabetProcessorOutput {
         guard let output = try? gestureAI.prediction(input:
-            GestureAIInput(input1: toMLMultiArray(arr))) else {
+            GestureAlphabetProcessorInput(accelerometerAccelerationX: toMLMultiArray(arrX), accelerometerAccelerationY: toMLMultiArray(arrY), accelerometerAccelerationZ: toMLMultiArray(arrZ))) else {
                 fatalError("Unexpected runtime error.")
         }
         return output

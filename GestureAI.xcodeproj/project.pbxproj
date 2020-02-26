@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		183D7ACC2405EF3C00545E8D /* GestureAlphabetProcessor.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 183D7ACB2405EF3C00545E8D /* GestureAlphabetProcessor.mlmodel */; };
 		184D74E823F9DBFC006FB028 /* GestureAI.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 184D74E723F9DBFC006FB028 /* GestureAI.mlmodel */; };
 		A20D974D1F791B87007A8B60 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20D974C1F791B87007A8B60 /* AppDelegate.swift */; };
 		A20D974F1F791B87007A8B60 /* GestureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20D974E1F791B87007A8B60 /* GestureViewController.swift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		183D7ACB2405EF3C00545E8D /* GestureAlphabetProcessor.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = GestureAlphabetProcessor.mlmodel; sourceTree = "<group>"; };
 		184D74E723F9DBFC006FB028 /* GestureAI.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = GestureAI.mlmodel; sourceTree = "<group>"; };
 		A20D97491F791B87007A8B60 /* GestureAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GestureAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20D974C1F791B87007A8B60 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				184D74E723F9DBFC006FB028 /* GestureAI.mlmodel */,
+				183D7ACB2405EF3C00545E8D /* GestureAlphabetProcessor.mlmodel */,
 				A20D97651F791CDB007A8B60 /* Resources */,
 				A20D974C1F791B87007A8B60 /* AppDelegate.swift */,
 				A20D974E1F791B87007A8B60 /* GestureViewController.swift */,
@@ -175,6 +178,7 @@
 				184D74E823F9DBFC006FB028 /* GestureAI.mlmodel in Sources */,
 				A20D974D1F791B87007A8B60 /* AppDelegate.swift in Sources */,
 				A20D976B1F792906007A8B60 /* GASymbol.swift in Sources */,
+				183D7ACC2405EF3C00545E8D /* GestureAlphabetProcessor.mlmodel in Sources */,
 				A20D974F1F791B87007A8B60 /* GestureViewController.swift in Sources */,
 				A20D97671F791CEF007A8B60 /* GAColor.swift in Sources */,
 			);
