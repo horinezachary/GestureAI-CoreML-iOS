@@ -239,7 +239,7 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     /// - arr: double array
     /// - Returns: MLMultiArray
     private func toMLMultiArray(_ arr: [Double]) -> MLMultiArray {
-        guard let sequence = try? MLMultiArray(shape:[120], dataType:MLMultiArrayDataType.double) else {
+        guard let sequence = try? MLMultiArray(shape:[30], dataType:MLMultiArrayDataType.double) else {
             fatalError("Unexpected runtime error. MLMultiArray")
         }
         let size = Int(truncating: sequence.shape[0])
@@ -256,7 +256,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     /// - Returns: Likelihood
     private func predict(_ arrX: [Double], _ arrY: [Double], _ arrZ: [Double]) -> GestureAlphabetProcessorOutput {
         guard let output = try? gestureAI.prediction(input:
-            GestureAlphabetProcessorInput(accelerometerAccelerationX: toMLMultiArray(arrX), accelerometerAccelerationY: toMLMultiArray(arrY), accelerometerAccelerationZ: toMLMultiArray(arrZ))) else {
+            GestureAlphabetProcessorInput(accelerometerAccelerationX: toMLMultiArray(arrX),
+                                          accelerometerAccelerationY: toMLMultiArray(arrY),
+                                          accelerometerAccelerationZ: toMLMultiArray(arrZ))) else {
                 fatalError("Unexpected runtime error.")
         }
         return output
