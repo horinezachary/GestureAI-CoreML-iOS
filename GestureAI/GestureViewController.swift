@@ -256,9 +256,9 @@ class GestureViewController: UIViewController, UIPickerViewDelegate, UIPickerVie
     /// - Returns: Likelihood
     private func predict(_ arrX: [Double], _ arrY: [Double], _ arrZ: [Double]) -> GestureAlphabetProcessorOutput {
         guard let output = try? gestureAI.prediction(input:
-            GestureAlphabetProcessorInput(accelerometerAccelerationX: toMLMultiArray(arrX),
-                                          accelerometerAccelerationY: toMLMultiArray(arrY),
-                                          accelerometerAccelerationZ: toMLMultiArray(arrZ))) else {
+            GestureAlphabetProcessorInput(accelerometerAccelerationX_G_: toMLMultiArray(arrX),
+                                          accelerometerAccelerationY_G_: toMLMultiArray(arrY),
+                                          accelerometerAccelerationZ_G_: toMLMultiArray(arrZ))) else {
                 fatalError("Unexpected runtime error.")
         }
         return output
